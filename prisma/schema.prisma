@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  discordId     String   @unique
+  name          String
+  avatar        String?
+  points        Int      @default(1000)
+  wins          Int      @default(0)
+  losses        Int      @default(0)
+  mvpCount      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  matchPlayers     MatchPlayer[]
+  mvpVotesGiven    MvpVote[]     @relation("VoterVotes")
+  mvpVotesReceived MvpVote[]     @relation("NomineeVotes")
+  createdMatches   Match[]       @relation("MatchCreator")
+
+  @@map("users")
+}
+
+model Match {
+  id         String      @id @default(cuid())
+  creatorId  String
+  creator    User        @relation("MatchCreator", fields: [creatorId], references: [id])
+  status     MatchStatus @default(LOBBY)
+  mode       MatchMode
+  maps       String[]
+  currentMap Int         @default(0)
+  scoreA     Int         @default(0)
+  scoreB     Int         @default(0)
+  winner     Team?
+  draftTurn  Team?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  players  MatchPlayer[]
+  mvpVotes MvpVote[]
+
+  @@map("matches")
+}
+
+model MatchPlayer {
+  id          String   @id @default(cuid())
+  matchId     String
+  userId      String
+  match       Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id])
+  team        Team?
+  isCaptain   Boolean  @default(false)
+  pointsDelta Int?
+  joinedAt    DateTime @default(now())
+
+  @@unique([matchId, userId])
+  @@map("match_players")
+}
+
+model MvpVote {
+  id        String   @id @default(cuid())
+  matchId   String
+  voterId   String
+  nomineeId String
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  voter     User     @relation("VoterVotes", fields: [voterId], references: [id])
+  nominee   User     @relation("NomineeVotes", fields: [nomineeId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([matchId, voterId])
+  @@map("mvp_votes")
+}
+
+enum MatchStatus {
+  LOBBY
+  DRAFT
+  IN_PROGRESS
+  VOTING
+  COMPLETED
+}
+
+enum MatchMode {
+  CAPTAIN_DRAFT
+  RANDOM_TEAMS
+}
+
+enum Team {
+  A
+  B
+}
