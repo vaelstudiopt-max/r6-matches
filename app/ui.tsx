@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import { AlertTriangle, ArrowRight, Check, ChevronRight, Clock3, Crown, Headphones, Link2, LockKeyhole, LogIn, LogOut, Map as MapIcon, Menu, RefreshCw, Settings, Shield, Swords, Target, Trophy, Users, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, ChevronRight, Clock3, Crown, Headphones, Link2, LockKeyhole, LogIn, LogOut, Map as MapIcon, Menu, Pause, Play, RefreshCw, Settings, Shield, Swords, Target, Trophy, Users, X } from "lucide-react";
 import { supabase, type MapItem, type Match, type MatchPlayer, type Profile, type QueueEntry, type SeriesMap, type VetoAction } from "@/lib/supabase";
 
 type Batch = { id: string; mode: string; format: string; status: string; deadline: string };
@@ -37,6 +37,7 @@ export function Dashboard({ section, matchId }: DashboardProps) {
   const [settings, setSettings] = useState<SettingsData | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [heroMotion, setHeroMotion] = useState(true);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState(Date.now());
@@ -143,7 +144,9 @@ export function Dashboard({ section, matchId }: DashboardProps) {
 
     <main className="main-content">
       {section === "matches" && <>
-        <section className="hero">
+        <section className={`hero cinematic-hero${heroMotion ? "" : " motion-paused"}`}>
+          <div className="hero-film" aria-hidden="true"><span className="hero-frame hero-frame-one" /><span className="hero-frame hero-frame-two" /><span className="hero-film-shade" /><span className="hero-scan" /></div>
+          <button className="hero-motion-toggle" type="button" onClick={() => setHeroMotion((playing) => !playing)} aria-label={heroMotion ? "Pause hero animation" : "Play hero animation"}>{heroMotion ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}<span>{heroMotion ? "PAUSE" : "PLAY"} INTRO</span></button>
           <div className="hero-content"><div className="eyebrow"><span className="eyebrow-line" /> THE HOME OF YOUR NEXT 5V5</div><h1>THE MATCH<br /><em>STARTS HERE.</em></h1><p>Find your ten. Draft your five. Take the map. Every win moves your name up the board.</p><div className="hero-actions"><a className="button button-gold" href="#queues">JOIN A QUEUE <ArrowRight size={18} /></a><a className="button button-outline" href="/leaderboard">VIEW RANKINGS <Trophy size={17} /></a></div></div>
           <div className="hero-visual"><div className="scope-ring ring-one" /><div className="scope-ring ring-two" /><div className="scope-cross horizontal" /><div className="scope-cross vertical" /><div className="hero-number">05<span>VS</span>05</div><div className="hero-visual-label">TACTICS DECIDE EVERYTHING</div></div>
           <div className="hero-bottom"><span><i /> QUEUES OPEN</span><span>CAPTAINS / RANDOM TEAMS</span><span>PC · 5V5</span></div>
