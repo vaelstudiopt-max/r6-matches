@@ -75,6 +75,14 @@ export function Dashboard({ section, matchId }: DashboardProps) {
 
   useEffect(() => {
     if (!supabase) return;
+    const callbackUrl = new URL(window.location.href);
+    const callbackHash = new URLSearchParams(callbackUrl.hash.slice(1));
+    if (callbackUrl.searchParams.has("error") || callbackHash.has("error")) {
+      setNotice("Discord sign-in could not finish. Please try again or use email while we fix the connection.");
+      for (const key of ["error", "error_code", "error_description"]) callbackUrl.searchParams.delete(key);
+      callbackUrl.hash = "";
+      window.history.replaceState({}, "", callbackUrl.pathname + callbackUrl.search);
+    }
     void supabase.auth.getUser().then(({ data }) => setUser(data.user));
     void load();
     const { data: auth } = supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user ?? null); void load(); });
