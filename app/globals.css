@@ -49,6 +49,7 @@ h1,h2,h3{letter-spacing:-.045em}
 .member-state.automatic{color:#9abaff}
 .member-id{margin:0}
 .member-id input{width:100%}
+.member-id small{display:block;margin-top:5px;color:#91a0a6;font-size:10px;font-weight:500;letter-spacing:0;text-transform:none}
 .member-actions{display:flex;gap:7px}
 .member-actions .button{min-height:38px}
 .member-empty{padding:18px 0}
